@@ -1,0 +1,30 @@
+{
+  "class_names": {
+    "0": "akiec",
+    "1": "bcc",
+    "2": "bkl",
+    "3": "df",
+    "4": "mel",
+    "5": "nv",
+    "6": "vasc"
+  },
+  "split_sizes": {
+    "train": 7007,
+    "val": 1003,
+    "test": 2005
+  },
+  "class_balance_train_pct": {
+    "nv": 67.0,
+    "mel": 11.1,
+    "bkl": 11.0,
+    "bcc": 5.1,
+    "akiec": 3.3,
+    "vasc": 1.4,
+    "df": 1.1
+  },
+  "image_shape": [
+    128,
+    128,
+    3
+  ]
+}

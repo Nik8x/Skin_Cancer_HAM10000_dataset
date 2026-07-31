@@ -1,0 +1,7 @@
+{
+  "kmeans_ari": 0.028700622629616656,
+  "gmm_ari": 0.036616690763306516,
+  "kmeans_silhouette": 0.07482917606830597,
+  "gmm_silhouette": 0.0708446353673935,
+  "pca_variance_explained": 0.670709490776062
+}

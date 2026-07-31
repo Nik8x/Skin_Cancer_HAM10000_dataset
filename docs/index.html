@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skin Cancer HAM10000 - 7-Class Lesion Classification</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg:            #fcfcfb;
+  --surface:       #ffffff;
+  --surface-2:     #f4f3f0;
+  --border:        #e4e2dc;
+  --text-primary:  #14140f;
+  --text-secondary:#52514e;
+  --text-muted:    #7a7972;
+  --series-1:      #2a78d6;
+  --series-2:      #eb6834;
+  --series-3:      #1baf7a;
+  --series-4:      #eda100;
+  --good:          #0ca30c;
+  --critical:      #d03b3b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --bg:            #131311;
+    --surface:       #1a1a19;
+    --surface-2:     #212120;
+    --border:        #34332f;
+    --text-primary:  #f5f4f0;
+    --text-secondary:#c3c2b7;
+    --text-muted:    #8f8e86;
+    --series-1:      #3987e5;
+    --series-2:      #d95926;
+    --series-3:      #199e70;
+    --series-4:      #c98500;
+    --good:          #3ecf3e;
+    --critical:      #e66767;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:            #131311;
+  --surface:       #1a1a19;
+  --surface-2:     #212120;
+  --border:        #34332f;
+  --text-primary:  #f5f4f0;
+  --text-secondary:#c3c2b7;
+  --text-muted:    #8f8e86;
+  --series-1:      #3987e5;
+  --series-2:      #d95926;
+  --series-3:      #199e70;
+  --series-4:      #c98500;
+  --good:          #3ecf3e;
+  --critical:      #e66767;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  line-height: 1.55;
+}
+main {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 5rem;
+}
+header.hero {
+  margin-bottom: 2.5rem;
+}
+h1 {
+  font-size: 1.9rem;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.01em;
+}
+.lede {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  max-width: 68ch;
+}
+.pill-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+.pill {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+}
+section { margin: 3rem 0; }
+h2 {
+  font-size: 1.3rem;
+  margin: 0 0 0.3rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
+p { color: var(--text-secondary); }
+p.section-intro { margin-top: 0.8rem; }
+figure { margin: 1.2rem 0; }
+figure img {
+  max-width: 100%;
+  display: block;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+figcaption {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 1.2rem;
+}
+.stat {
+  background: var(--surface);
+  padding: 1rem;
+}
+.stat .num {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+.stat .label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.2rem 1.4rem 1.4rem;
+  margin: 1.2rem 0;
+  overflow-x: auto;
+}
+.legend {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.8rem;
+}
+.legend span.dot {
+  display: inline-block;
+  width: 9px; height: 9px;
+  border-radius: 2px;
+  margin-right: 0.4rem;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.88rem;
+  margin: 1rem 0;
+}
+th, td {
+  text-align: left;
+  padding: 0.45rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+}
+th { color: var(--text-muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.02em; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+code {
+  background: var(--surface-2);
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.9em;
+}
+.callout {
+  background: var(--surface-2);
+  border-left: 3px solid var(--series-1);
+  border-radius: 6px;
+  padding: 0.9rem 1.1rem;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  margin: 1.2rem 0;
+}
+.callout.warn { border-left-color: var(--series-2); }
+ul.findings { padding-left: 1.2rem; }
+ul.findings li { margin-bottom: 0.8rem; color: var(--text-secondary); }
+ul.findings strong { color: var(--text-primary); }
+footer {
+  margin-top: 3.5rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+a { color: var(--series-1); }
+</style>
+</head>
+<body>
+<main>
+
+<header class="hero">
+  <h1>Skin Cancer HAM10000 &mdash; 7-Class Lesion Classification</h1>
+  <p class="lede">
+    10,015 dermatoscopic images across 7 diagnostic categories &mdash; a staged
+    build from a from-scratch CNN through class-imbalance handling, transfer
+    learning, Grad-CAM interpretability, and unsupervised embedding
+    clustering. Every stage is evaluated per-class, not just on overall
+    accuracy, since overall accuracy turns out to hide almost everything
+    interesting in this dataset.
+  </p>
+  <div class="pill-row">
+    <span class="pill">10,015 images</span>
+    <span class="pill">7 diagnostic classes</span>
+    <span class="pill">TensorFlow / Keras</span>
+    <span class="pill">MobileNetV2 transfer learning</span>
+    <span class="pill">Grad-CAM</span>
+  </div>
+</header>
+
+<section id="data">
+  <h2>The data</h2>
+  <p class="section-intro">
+    Images are <a href="https://zenodo.org/records/10519652">DermaMNIST</a>,
+    a 128&times;128 standardized derivative of the HAM10000/ISIC 2018 source
+    images with an official stratified split (7,007 train / 1,003
+    validation / 2,005 test). Demographic metadata comes from the
+    <a href="https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/DBW86T">Harvard
+    Dataverse HAM10000 release</a>.
+  </p>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="num">67.0%</div><div class="label">nv (melanocytic nevi)</div></div>
+    <div class="stat"><div class="num">11.1%</div><div class="label">mel (melanoma)</div></div>
+    <div class="stat"><div class="num">11.0%</div><div class="label">bkl</div></div>
+    <div class="stat"><div class="num">5.1%</div><div class="label">bcc</div></div>
+    <div class="stat"><div class="num">3.3%</div><div class="label">akiec</div></div>
+    <div class="stat"><div class="num">1.4%</div><div class="label">vasc</div></div>
+    <div class="stat"><div class="num">1.1%</div><div class="label">df</div></div>
+  </div>
+
+  <figure>
+    <img src="assets/example_images.png" alt="Example images from each of the 7 diagnostic classes">
+    <figcaption>Six example images per class, straight from the training split.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="assets/class_balance.png" alt="Class proportions across train, validation, and test splits">
+    <figcaption>Class proportions hold consistent across train/val/test - a stratified split, unlike a split done by sorting on an unrelated ID column.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="assets/demographics.png" alt="Age, sex, and diagnosis confirmation method distributions">
+    <figcaption>Age, sex, and diagnosis-confirmation method from the Harvard Dataverse metadata (10,015 source images).</figcaption>
+  </figure>
+</section>
+
+<section id="progression">
+  <h2>Stage progression</h2>
+  <p class="section-intro">
+    Four stages, same held-out test set throughout. Overall accuracy barely
+    moves after the first stage &mdash; macro-F1 (which treats all 7 classes
+    equally, instead of being dominated by the 67%-share majority class) is
+    where the real story is.
+  </p>
+
+  <div class="chart-card">
+    <div class="legend">
+      <span><span class="dot" style="background:var(--series-1)"></span>test accuracy</span>
+      <span><span class="dot" style="background:var(--series-2)"></span>macro-F1</span>
+    </div>
+    <svg id="stage-chart" width="100%" height="260" viewBox="0 0 720 260" role="img"
+         aria-label="Bar chart comparing test accuracy and macro-F1 across four stages"></svg>
+  </div>
+
+  <table>
+    <thead><tr><th>Stage</th><th class="num">Test accuracy</th><th class="num">Macro-F1</th></tr></thead>
+    <tbody>
+      <tr><td>Majority-class baseline (always guess <code>nv</code>)</td><td class="num">0.669</td><td class="num">&mdash;</td></tr>
+      <tr><td>Baseline CNN (from scratch, bugs fixed)</td><td class="num">0.704</td><td class="num">0.259</td></tr>
+      <tr><td>+ tempered class weights</td><td class="num">0.700</td><td class="num">0.371</td></tr>
+      <tr><td>+ class weights + augmentation</td><td class="num">0.697</td><td class="num">0.245</td></tr>
+      <tr><td><strong>MobileNetV2 transfer learning</strong></td><td class="num"><strong>0.699</strong></td><td class="num"><strong>0.531</strong></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="baseline">
+  <h2>Baseline: what "fixing the bugs" alone gets you</h2>
+  <p class="section-intro">
+    A 4-block CNN trained from scratch, with an explicit image/label
+    alignment check before training and one model object trained straight
+    through to evaluation &mdash; no separate device-specific clone, no
+    session-clearing between training and evaluation.
+  </p>
+  <figure>
+    <img src="assets/baseline_training_curves.png" alt="Baseline CNN loss and accuracy curves">
+    <figcaption>Loss and accuracy over 15 epochs (early stopping restored the best validation-loss epoch).</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/baseline_confusion_matrix.png" alt="Baseline CNN confusion matrix">
+    <figcaption>70.4% test accuracy sounds fine next to a 66.9% majority-class baseline - until the confusion matrix shows almost everything funneling into the <code>nv</code> column. <code>df</code> and <code>vasc</code> get 0% recall.</figcaption>
+  </figure>
+</section>
+
+<section id="imbalance">
+  <h2>Class imbalance: a training collapse, then a fix</h2>
+  <div class="callout warn">
+    <strong>What went wrong first:</strong> raw inverse-frequency class
+    weights (<code>sklearn.utils.class_weight.compute_class_weight('balanced', ...)</code>)
+    range from 0.21&times; (<code>nv</code>) to 11.9&times; (<code>df</code>)
+    &mdash; a ~57&times; spread. Training with these directly collapsed
+    completely: loss got stuck at <code>ln(7) = 1.946</code>, exactly what a
+    uniform random guess produces, and validation accuracy fell near 0%
+    regardless of learning rate. A handful of heavily-weighted rare-class
+    samples per batch were dominating the gradient.
+  </div>
+  <p class="section-intro">
+    <strong>The fix:</strong> tempering the weights with a square root
+    (same ranking, rare classes still matter more, ~7.5&times; spread
+    instead of 57&times;) resolved it outright. Comparing tempered class
+    weights, with and without augmentation, against the baseline:
+  </p>
+  <figure>
+    <img src="assets/imbalance_recall_comparison.png" alt="Per-class recall comparison across baseline, class weights, and augmentation">
+    <figcaption>Class weights alone raised recall substantially on several rare classes (<code>vasc</code>: 0% &rarr; 65.5%). Adding augmentation on top actually did worse in this run than weighting alone.</figcaption>
+  </figure>
+</section>
+
+<section id="transfer">
+  <h2>Transfer learning: the real turning point</h2>
+  <p class="section-intro">
+    Fine-tuning a pretrained MobileNetV2 (frozen head first, then a partial
+    unfreeze at a low learning rate) instead of training a CNN from
+    scratch. Same ballpark overall accuracy as the baseline, but a very
+    different, far more useful model.
+  </p>
+  <figure>
+    <img src="assets/stage_comparison.png" alt="Stage comparison bar chart of test accuracy and macro-F1">
+  </figure>
+  <figure>
+    <img src="assets/final_confusion_matrix.png" alt="Transfer learning model confusion matrix">
+    <figcaption>The diagonal is spread across every class now, not concentrated in one row.</figcaption>
+  </figure>
+
+  <table>
+    <thead><tr><th>Class</th><th class="num">Recall</th><th class="num">ROC AUC</th></tr></thead>
+    <tbody>
+      <tr><td>akiec</td><td class="num">0.682</td><td class="num">0.944</td></tr>
+      <tr><td>bcc</td><td class="num">0.573</td><td class="num">0.955</td></tr>
+      <tr><td>bkl</td><td class="num">0.545</td><td class="num">0.863</td></tr>
+      <tr><td>df</td><td class="num">0.739</td><td class="num">0.958</td></tr>
+      <tr><td>mel</td><td class="num">0.547</td><td class="num">0.846</td></tr>
+      <tr><td>nv</td><td class="num">0.755</td><td class="num">0.913</td></tr>
+      <tr><td>vasc</td><td class="num">0.897</td><td class="num">0.993</td></tr>
+    </tbody>
+  </table>
+  <p>Macro-average AUC: <strong>0.925</strong>. Every class - including
+     <code>df</code>, stuck at 0% recall in both earlier attempts - now
+     reaches above 50% recall.</p>
+
+  <figure>
+    <img src="assets/roc_curves.png" alt="Per-class ROC curves">
+  </figure>
+</section>
+
+<section id="gradcam">
+  <h2>Grad-CAM: what is the model actually looking at?</h2>
+  <p class="section-intro">
+    Grad-CAM highlights which pixels pushed the network toward its
+    predicted class, by tracing the gradient of that class's score back
+    into the last convolutional feature map.
+  </p>
+  <figure>
+    <img src="assets/gradcam_examples.png" alt="Grad-CAM heatmaps for one example image per class">
+    <figcaption>
+      One random example per class - not cherry-picked correct
+      predictions, so some rows show the model getting it wrong, exactly
+      as the per-class precision numbers (0.29-0.47 on the rarer classes)
+      would predict. Heatmaps are coarse: MobileNetV2 downsamples a
+      128&times;128 input by 32&times; before its final conv layer, so this
+      is a 4&times;4 grid upsampled, not pixel-precise. Even at that
+      resolution, most heatmaps sit over the lesion rather than the frame's
+      edges or corners.
+    </figcaption>
+  </figure>
+</section>
+
+<section id="clustering">
+  <h2>Unsupervised: do the model's own embeddings know anything?</h2>
+  <p class="section-intro">
+    Taking the 1280-dimensional feature vector the network computes right
+    before its classification head, and clustering it &mdash; KMeans and a
+    Gaussian mixture model &mdash; without ever showing either algorithm a
+    label. The labels are used only afterward, to check the clusters
+    against them.
+  </p>
+  <div class="stat-grid">
+    <div class="stat"><div class="num">0.029</div><div class="label">KMeans adjusted Rand index</div></div>
+    <div class="stat"><div class="num">0.037</div><div class="label">GMM adjusted Rand index</div></div>
+    <div class="stat"><div class="num">67%</div><div class="label">variance explained (50 PCA dims)</div></div>
+  </div>
+  <figure>
+    <img src="assets/embedding_clusters.png" alt="t-SNE of embeddings colored by true diagnosis and by KMeans cluster">
+    <figcaption><code>nv</code>'s sheer volume dominates the embedding space visually - the clusters don't correspond cleanly to the 7 diagnostic categories (adjusted Rand ~0.03, near chance level).</figcaption>
+  </figure>
+</section>
+
+<section id="findings">
+  <h2>Key findings</h2>
+  <ul class="findings">
+    <li><strong>Fixing correctness bugs alone barely moved the needle.</strong>
+      A verified image/label alignment and a clean train-to-evaluate path
+      reached 70.4% accuracy against a 66.9% majority-class baseline - real,
+      but marginal, and per-class recall showed the model had mostly
+      learned to guess <code>nv</code>.</li>
+    <li><strong>Naive class weighting can break training before it helps.</strong>
+      A ~57&times; weight spread caused a full collapse to random-guessing
+      loss; tempering with a square root fixed it and raised macro-F1 from
+      0.26 to 0.37.</li>
+    <li><strong>Transfer learning was the real turning point</strong> - same
+      ~70% overall accuracy as the from-scratch baseline, but macro-F1 of
+      0.53 and every class above 50% recall, including <code>df</code>
+      (0% in every earlier attempt).</li>
+    <li><strong>Per-class AUC averaged 0.92</strong>, and Grad-CAM shows the
+      model generally attending to the lesion itself, not background or
+      artifacts - a useful sanity check distinct from any single accuracy
+      number.</li>
+    <li><strong>The model's embeddings only weakly reflect real diagnoses
+      without label supervision</strong> - adjusted Rand index ~0.03,
+      dominated by <code>nv</code>'s sheer volume rather than clean
+      diagnostic separation.</li>
+  </ul>
+</section>
+
+<footer>
+  Full detail, code, and every number above in the
+  <a href="https://github.com/Nik8x/Skin_Cancer_HAM10000_dataset">notebooks</a>.
+</footer>
+
+</main>
+
+<script>
+(function () {
+  const stages = [
+    { label: 'Baseline CNN', acc: 0.704, f1: 0.259 },
+    { label: '+ class weights', acc: 0.700, f1: 0.371 },
+    { label: '+ weights + aug', acc: 0.697, f1: 0.245 },
+    { label: 'MobileNetV2 transfer', acc: 0.699, f1: 0.531 },
+  ];
+
+  const svg = document.getElementById('stage-chart');
+  const W = 720, H = 260;
+  const marginLeft = 40, marginBottom = 46, marginTop = 10, marginRight = 10;
+  const plotW = W - marginLeft - marginRight;
+  const plotH = H - marginTop - marginBottom;
+  const groupW = plotW / stages.length;
+  const barW = 26, gap = 6;
+
+  const style = getComputedStyle(document.documentElement);
+  const colorAcc = 'var(--series-1)';
+  const colorF1 = 'var(--series-2)';
+
+  const ns = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs) {
+    const e = document.createElementNS(ns, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  // axis line
+  svg.appendChild(el('line', {
+    x1: marginLeft, y1: marginTop + plotH, x2: marginLeft + plotW, y2: marginTop + plotH,
+    stroke: 'var(--border)', 'stroke-width': 1
+  }));
+
+  // y gridlines + labels (0, 0.25, 0.5, 0.75, 1.0)
+  [0, 0.25, 0.5, 0.75, 1.0].forEach(function (v) {
+    const y = marginTop + plotH - v * plotH;
+    svg.appendChild(el('line', {
+      x1: marginLeft, y1: y, x2: marginLeft + plotW, y2: y,
+      stroke: 'var(--border)', 'stroke-width': 1, opacity: v === 0 ? 0 : 0.6
+    }));
+    const t = el('text', { x: marginLeft - 8, y: y + 4, 'text-anchor': 'end', 'font-size': 11, fill: 'var(--text-muted)' });
+    t.textContent = v.toFixed(2);
+    svg.appendChild(t);
+  });
+
+  stages.forEach(function (s, i) {
+    const groupX = marginLeft + i * groupW;
+    const centerX = groupX + groupW / 2;
+
+    const accH = s.acc * plotH;
+    const f1H = s.f1 * plotH;
+    const accX = centerX - gap / 2 - barW;
+    const f1X = centerX + gap / 2;
+
+    svg.appendChild(el('rect', {
+      x: accX, y: marginTop + plotH - accH, width: barW, height: accH,
+      rx: 4, fill: colorAcc
+    }));
+    svg.appendChild(el('rect', {
+      x: f1X, y: marginTop + plotH - f1H, width: barW, height: f1H,
+      rx: 4, fill: colorF1
+    }));
+
+    const accLabel = el('text', {
+      x: accX + barW / 2, y: marginTop + plotH - accH - 6, 'text-anchor': 'middle',
+      'font-size': 11, fill: 'var(--text-secondary)'
+    });
+    accLabel.textContent = s.acc.toFixed(2);
+    svg.appendChild(accLabel);
+
+    const f1Label = el('text', {
+      x: f1X + barW / 2, y: marginTop + plotH - f1H - 6, 'text-anchor': 'middle',
+      'font-size': 11, fill: 'var(--text-secondary)'
+    });
+    f1Label.textContent = s.f1.toFixed(2);
+    svg.appendChild(f1Label);
+
+    const lines = s.label.split(' ');
+    lines.forEach(function (line, li) {
+      const lt = el('text', {
+        x: centerX, y: marginTop + plotH + 16 + li * 13, 'text-anchor': 'middle',
+        'font-size': 11, fill: 'var(--text-secondary)'
+      });
+      lt.textContent = line;
+      svg.appendChild(lt);
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
